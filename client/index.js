@@ -16,7 +16,7 @@ import Routes from './routes';
 import MuiThemeProvider from './components/MuiThemeProvider';
 
 import configure from './store';
-import Web3Provider from './provider/web3api-provider';
+import Web3Provider from './provider/web3-provider';
 import { initAppAction } from './actions/app';
 
 const ethapi = new EthApi(new EthApi.Transport.Http(process.env.RPC_ADDRESS || '/rpc/'));
