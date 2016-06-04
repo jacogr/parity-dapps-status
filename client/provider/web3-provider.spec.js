@@ -2,6 +2,8 @@ import sinon from 'sinon';
 import Web3Provider from './web3-provider';
 import * as StatusActions from '../actions/status';
 
+import 'sinon-as-promised';
+
 describe('WEB3 PROVIDER', () => {
   let cut;
   let state;
@@ -15,20 +17,20 @@ describe('WEB3 PROVIDER', () => {
     };
     ethapi = {
       eth: {
-        hashrate: sinon.spy(),
-        blockNumber: sinon.spy(),
-        coinbase: sinon.spy()
+        hashrate: sinon.stub().resolves(1),
+        blockNumber: sinon.stub().resolves(1),
+        coinbase: sinon.stub().resolves(1)
       },
       ethcore: {
-        minGasPrice: sinon.spy(),
-        gasFloorTarget: sinon.spy(),
-        extraData: sinon.spy()
+        minGasPrice: sinon.stub().resolves(1),
+        gasFloorTarget: sinon.stub().resolves(1),
+        extraData: sinon.stub().resolves(1)
       },
       net: {
-        peerCount: sinon.spy()
+        peerCount: sinon.stub().resolves(1)
       },
       web3: {
-        clientVersion: sinon.spy()
+        clientVersion: sinon.stub().resolves(1)
       }
     };
 
@@ -72,11 +74,11 @@ describe('WEB3 PROVIDER', () => {
     cut.onTick();
 
     // then
-    expect(ethapi.eth.blockNumber.called).to.be.true;
+    expect(ethapi.eth.blockNumber).to.have.been.resolved;
 
     [ethapi.eth.hashrate, ethapi.eth.coinbase, ethapi.net.peerCount]
       .map((method) => {
-        expect(method.called).to.be.false;
+        expect(method).to.not.have.been.resolved;
       });
   });
 });
