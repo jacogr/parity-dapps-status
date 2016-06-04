@@ -74,11 +74,11 @@ describe('WEB3 PROVIDER', () => {
     cut.onTick();
 
     // then
-    expect(ethapi.eth.blockNumber).to.have.been.resolved;
+    expect(ethapi.eth.blockNumber.calledOnce).to.be.true;
 
     [ethapi.eth.hashrate, ethapi.eth.coinbase, ethapi.net.peerCount]
       .map((method) => {
-        expect(method).to.not.have.been.resolved;
+        expect(method.calledOnce).to.be.false;
       });
   });
 });
