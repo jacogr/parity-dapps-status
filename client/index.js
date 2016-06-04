@@ -10,19 +10,18 @@ import '!file-loader?name=icon.png!./icon.png';
 import 'dapp-styles/dapp-styles.less';
 import './env-specific';
 
-import Web3 from 'web3'; // must b after ./test otherwise it breaks
+import EthApi from 'ethapi-js';
 import middlewares from './middleware';
 import Routes from './routes';
 import MuiThemeProvider from './components/MuiThemeProvider';
 
 import configure from './store';
-import { Web3Provider } from './provider/web3-provider';
-import EthcoreWeb3 from './provider/web3-ethcore-provider';
+import Web3Provider from './provider/web3api-provider';
 import { initAppAction } from './actions/app';
 
-const web3 = new Web3(new Web3.providers.HttpProvider(process.env.RPC_ADDRESS || '/rpc/'));
+const ethapi = new EthApi(new EthApi.Transport.Http(process.env.RPC_ADDRESS || '/rpc/'));
 
-const store = configure(middlewares(web3));
+const store = configure(middlewares(ethapi));
 
 ReactDOM.render(
   <Provider store={store}>
@@ -33,10 +32,9 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-const ethcoreWeb3 = new EthcoreWeb3(web3);
-new Web3Provider(web3, ethcoreWeb3, store).start();
+new Web3Provider(ethapi, store).start();
 
 (window || global).store = localStore;
-(window || global).web3 = web3;
+(window || global).ethapi = ethapi;
 
 store.dispatch(initAppAction());

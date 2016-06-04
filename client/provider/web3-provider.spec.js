@@ -1,11 +1,11 @@
 import sinon from 'sinon';
-import { Web3Provider } from './web3-provider';
+import Web3Provider from './web3-provider';
 import * as StatusActions from '../actions/status';
 
 describe('WEB3 PROVIDER', () => {
   let cut;
   let state;
-  let web3;
+  let ethapi;
 
   beforeEach('mock Web3Provider', () => {
     state = {
@@ -13,24 +13,23 @@ describe('WEB3 PROVIDER', () => {
         noOfErrors: 0
       }
     };
-    web3 = {
+    ethapi = {
       eth: {
-        getHashrate: sinon.spy(),
-        getBlockNumber: sinon.spy(),
-        getCoinbase: sinon.spy()
+        hashrate: sinon.spy(),
+        blockNumber: sinon.spy(),
+        coinbase: sinon.spy()
+      },
+      ethcore: {
+        minGasPrice: sinon.spy(),
+        gasFloorTarget: sinon.spy(),
+        extraData: sinon.spy()
       },
       net: {
-        getPeerCount: sinon.spy()
+        peerCount: sinon.spy()
       },
-      version: {
-        getNode: sinon.spy()
+      web3: {
+        clientVersion: sinon.spy()
       }
-    };
-
-    const ethcoreWeb3 = {
-      getMinGasPrice: sinon.spy(),
-      getGasFloorTarget: sinon.spy(),
-      getExtraData: sinon.spy()
     };
 
     const store = {
@@ -38,7 +37,7 @@ describe('WEB3 PROVIDER', () => {
       getState: () => state
     };
 
-    cut = new Web3Provider(web3, ethcoreWeb3, store);
+    cut = new Web3Provider(ethapi, store);
   });
 
   it('should get action from action type', () => {
@@ -73,9 +72,9 @@ describe('WEB3 PROVIDER', () => {
     cut.onTick();
 
     // then
-    expect(web3.eth.getBlockNumber.called).to.be.true;
+    expect(ethapi.eth.blockNumber.called).to.be.true;
 
-    [web3.eth.getHashrate, web3.eth.getCoinbase, web3.net.getPeerCount]
+    [ethapi.eth.hashrate, ethapi.eth.coinbase, ethapi.net.peerCount]
       .map((method) => {
         expect(method.called).to.be.false;
       });

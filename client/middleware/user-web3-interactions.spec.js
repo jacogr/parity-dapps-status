@@ -6,18 +6,19 @@ describe('MIDDLEWARE: WEB3 INTERACTIONS', () => {
   let cut;
 
   beforeEach('Mock cut', () => {
-    const web3 = null;
-    const ethcoreWeb3 = {
-      setExtraData: sinon.spy()
+    const ethapi = {
+      ethcore: {
+        setExtraData: sinon.spy()
+      }
     };
-    cut = new WebInteractions(web3, ethcoreWeb3);
+    cut = new WebInteractions(ethapi);
   });
 
   it('should get correct function names', () => {
     expect(cut.getMethod('modify minGasPrice')).to.equal('setMinGasPrice');
   });
 
-  it('should not invoke web3 when a non modify action is dispatched', () => {
+  it('should not invoke ethapi when a non modify action is dispatched', () => {
     // given
     const store = null;
     const next = sinon.spy();
@@ -31,12 +32,12 @@ describe('MIDDLEWARE: WEB3 INTERACTIONS', () => {
 
     // then
     expect(next.calledWith(action)).to.be.true;
-    Object.keys(cut.ethcoreWeb3).map((func) => {
-      expect(cut.ethcoreWeb3[func].notCalled).to.be.true;
+    Object.keys(cut.ethapi.ethcore).map((func) => {
+      expect(cut.ethapi.ethcore[func].notCalled).to.be.true;
     });
   });
 
-  it('should invoke web3 when a modify action is dispatched', () => {
+  it('should invoke ethapi when a modify action is dispatched', () => {
     // given
     const extraData = 'Parity';
     const store = null;
@@ -51,7 +52,7 @@ describe('MIDDLEWARE: WEB3 INTERACTIONS', () => {
 
     // then
     expect(
-      cut.ethcoreWeb3[cut.getMethod('modify extraData')]
+      cut.ethapi.ethcore[cut.getMethod('modify extraData')]
       .calledWith(action.payload)
     ).to.be.true;
     expect(action.type).to.equal('update extraData');

@@ -1,18 +1,18 @@
 
 import { isArray, isObject, isEqual, compact } from 'lodash';
 import { isBigNumber } from 'web3/lib/utils/utils';
-import { toPromise } from '../util';
-import { Web3Base } from './web3-base';
+import Web3Base from './web3-base';
 import * as StatusActions from '../actions/status';
 import * as MiningActions from '../actions/mining';
 import * as DebugActions from '../actions/debug';
 
-export class Web3Provider extends Web3Base {
+export default class Web3Provider extends Web3Base {
 
   state = {}
 
-  constructor (web3, ethcoreWeb3, store) {
-    super(web3, ethcoreWeb3);
+  constructor (ethapi, store) {
+    super(ethapi);
+
     this.store = store;
     this.delay = 500;
     this.running = false;
@@ -20,7 +20,8 @@ export class Web3Provider extends Web3Base {
   }
 
   onStart () {
-    toPromise(this.web3.version.getNode)
+    this.ethapi.web3
+      .clientVersion()
       .then(StatusActions.updateVersion)
       .then(::this.store.dispatch)
       .catch(err => {
@@ -33,7 +34,7 @@ export class Web3Provider extends Web3Base {
     // When disconnected we are only checking single call.
     // After we connect again - onTick should refresh all other results.
     const call = this.tickArr[0];
-    return toPromise(call.method)
+    return call.method()
       .then(call.actionMaker)
       .then(this.store.dispatch)
       .catch(err => {
@@ -51,7 +52,7 @@ export class Web3Provider extends Web3Base {
         console.error(obj);
         throw new Error(`Missing action creator for no ${idx}`);
       }
-      return toPromise(obj.method).then(obj.actionMaker)
+      return obj.method().then(obj.actionMaker)
         .catch(err => {
           const action = obj.actionMaker();
           console.error(`err for ${action.type} with payload ${action.payload}`);
@@ -71,22 +72,22 @@ export class Web3Provider extends Web3Base {
 
   getTickArr () {
     return [
-      { method: this.web3.eth.getBlockNumber, actionMaker: StatusActions.updateBlockNumber },
-      { method: this.web3.eth.getHashrate, actionMaker: StatusActions.updateHashrate },
-      { method: this.web3.net.getPeerCount, actionMaker: StatusActions.updatePeerCount },
-      { method: this.web3.eth.getAccounts, actionMaker: StatusActions.updateAccounts },
-      { method: this.web3.eth.getCoinbase, actionMaker: MiningActions.updateAuthor },
-      { method: this.ethcoreWeb3.getMinGasPrice, actionMaker: MiningActions.updateMinGasPrice },
-      { method: this.ethcoreWeb3.getGasFloorTarget, actionMaker: MiningActions.updateGasFloorTarget },
-      { method: this.ethcoreWeb3.getExtraData, actionMaker: MiningActions.updateExtraData },
-      { method: this.ethcoreWeb3.getDefaultExtraData, actionMaker: MiningActions.updateDefaultExtraData },
-      { method: this.ethcoreWeb3.getDevLogsLevels, actionMaker: DebugActions.updateDevLogsLevels },
-      { method: this.ethcoreWeb3.getDevLogs, actionMaker: DebugActions.updateDevLogs },
-      { method: this.ethcoreWeb3.getNetChain, actionMaker: StatusActions.updateNetChain },
-      { method: this.ethcoreWeb3.getNetPort, actionMaker: StatusActions.updateNetPort },
-      { method: this.ethcoreWeb3.getNetMaxPeers, actionMaker: StatusActions.updateNetMaxPeers },
-      { method: this.ethcoreWeb3.getRpcSettings, actionMaker: StatusActions.updateRpcSettings },
-      { method: this.ethcoreWeb3.getNodeName, actionMaker: StatusActions.updateNodeName }
+      { method: this.ethapi.eth.blockNumber, actionMaker: StatusActions.updateBlockNumber },
+      { method: this.ethapi.eth.hashrate, actionMaker: StatusActions.updateHashrate },
+      { method: this.ethapi.net.peerCount, actionMaker: StatusActions.updatePeerCount },
+      { method: this.ethapi.eth.accounts, actionMaker: StatusActions.updateAccounts },
+      { method: this.ethapi.eth.coinbase, actionMaker: MiningActions.updateAuthor },
+      { method: this.ethapi.ethcore.minGasPrice, actionMaker: MiningActions.updateMinGasPrice },
+      { method: this.ethapi.ethcore.gasFloorTarget, actionMaker: MiningActions.updateGasFloorTarget },
+      { method: this.ethapi.ethcore.extraData, actionMaker: MiningActions.updateExtraData },
+      { method: this.ethapi.ethcore.defaultExtraData, actionMaker: MiningActions.updateDefaultExtraData },
+      { method: this.ethapi.ethcore.devLogsLevels, actionMaker: DebugActions.updateDevLogsLevels },
+      { method: this.ethapi.ethcore.devLogs, actionMaker: DebugActions.updateDevLogs },
+      { method: this.ethapi.ethcore.netChain, actionMaker: StatusActions.updateNetChain },
+      { method: this.ethapi.ethcore.netPort, actionMaker: StatusActions.updateNetPort },
+      { method: this.ethapi.ethcore.netMaxPeers, actionMaker: StatusActions.updateNetMaxPeers },
+      { method: this.ethapi.ethcore.rpcSettings, actionMaker: StatusActions.updateRpcSettings },
+      { method: this.ethapi.ethcore.nodeName, actionMaker: StatusActions.updateNodeName }
     ];
   }
 

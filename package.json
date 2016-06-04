@@ -98,7 +98,7 @@
     "browser-request": "0.3.3",
     "bytes": "2.3.0",
     "dapp-styles": "^0.2.2",
-    "ethapi-js": "^0.1.1",
+    "ethapi-js": "^0.1.2",
     "format-json": "1.0.3",
     "format-number": "2.0.1",
     "history": "2.1.1",

@@ -1,5 +1,5 @@
 
-import { Web3Base } from '../provider/web3-base';
+import Web3Base from '../provider/web3-base';
 
 export default class WebInteractions extends Web3Base {
 
@@ -22,7 +22,7 @@ export default class WebInteractions extends Web3Base {
   }
 
   onModify (store, next, action) {
-    this.ethcoreWeb3[this.getMethod(action.type)](action.payload);
+    this.ethapi.ethcore[this.getMethod(action.type)](action.payload);
     action.type = action.type.replace('modify ', 'update ');
     return next(action);
   }
